@@ -3,5 +3,5 @@ Weather app my project
 """
 
 
-a = "Weatherapp file."
+a = "Weatherapp file. :-)"
 print(a)
