@@ -1,7 +1,6 @@
 """
-Weather app my project
+Weather app my project.
+This is my first project. I hope it will work!
 """
 
-
-a = "Weatherapp file. :-)"
-print(a)
+print ("Hello world!")
