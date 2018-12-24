@@ -10,7 +10,7 @@ ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/3218
 #response = urlopen(ACCU_URL)
 
 #N2
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64;)'}
 accu_request = Request(ACCU_URL, headers=headers)
 response = urlopen(accu_request)
 
