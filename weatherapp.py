@@ -30,19 +30,19 @@ for char in accu_page[accu_temp_value_start:]:
 		break
 
 
-
+#тут виводимо данястану погоди
 #here is the weather
-ACCU_WEATHER_TAG = '<span class="cond">'
-accu_weather_tag_size = len(ACCU_WEATHER_TAG)
-accu_weather_tag_index = accu_page.find(ACCU_WEATHER_TAG)
-accu_weather_value_start = accu_weather_tag_index + accu_weather_tag_size
-accu_weather = ''
+ACCU_COND_TAG = '<span class="cond">'
+accu_cond_tag_size = len(ACCU_COND_TAG)
+accu_cond_tag_index = accu_page.find(ACCU_COND_TAG)
+accu_cond_value_start = accu_cond_tag_index + accu_cond_tag_size
+accu_cond = ''
 
 
 
-for charW in accu_page[accu_weather_value_start:]:
-	if charW != '<':
-		accu_weather += charW
+for char in accu_page[accu_cond_value_start:]:
+	if char != '<':
+		accu_cond += char
 	else:
 		break
 		
@@ -50,6 +50,6 @@ for charW in accu_page[accu_weather_value_start:]:
 
 print('AccuWeather in Kaniv: \n')
 print(f'Temperature: {html.unescape(accu_temp)}\n')
-print(f'Weather: {accu_weather}\n')
+print(f'Weather: {accu_cond}\n')
 
 #print("PAGE: ", accu_page) 
