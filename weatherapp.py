@@ -75,25 +75,25 @@ for char in rp5_content[rp5_temp_tag_start:]:
 		rp5_temp += char
 	else:
 		break
-"""
+
 #тут виводимо дані стану погоди
 #here is the weather
-ACCU_COND_TAG = '<span class="cond">'
-accu_cond_tag_size = len(ACCU_COND_TAG)
-accu_cond_tag_index = accu_page.find(ACCU_COND_TAG)
-accu_cond_value_start = accu_cond_tag_index + accu_cond_tag_size
-accu_cond = ''
-
-
-
-for char in accu_page[accu_cond_value_start:]:
+AINFO_CONTAINER_TAG = '<div class="ArchiveInfo">'
+RP5_ARCHIVE_TAG = '°F</span>'
+rp5_archive_tag = rp5_content.find(RP5_ARCHIVE_TAG, rp5_content.find(AINFO_CONTAINER_TAG))
+rp5_archive_tag_size = len(RP5_ARCHIVE_TAG)
+#rp5_tepm_tag_index = rp5_content.find(rp5_temp_tag)
+rp5_archive_tag_start = rp5_archive_tag + rp5_archive_tag_size + 2
+rp5_archive = ''
+for char in rp5_content[rp5_archive_tag_start:]:
 	if char != '<':
-		accu_cond += char
+		rp5_archive += char
 	else:
+		rp5_archive = rp5_archive + '.'
 		break
-"""		
+		
 
 
 print('RP5 in Kaniv: \n')
 print(f'Temperature: {html.unescape(rp5_temp)}\n')
-#print(f'Weather: {accu_cond}\n')
+print(f'Weather: {rp5_archive}\n')
