@@ -125,25 +125,24 @@ for char in sinoptik_content[sinoptik_temp_tag_start:]:
 		break
 
 
-'''
+
 #тут виводимо дані стану погоди
 #here is the weather
-AINFO_CONTAINER_TAG = '<div class="ArchiveInfo">'
-RP5_ARCHIVE_TAG = '°F</span>'
-rp5_archive_tag = rp5_content.find(RP5_ARCHIVE_TAG, rp5_content.find(AINFO_CONTAINER_TAG))
-rp5_archive_tag_size = len(RP5_ARCHIVE_TAG)
+SSINFO_CONTAINER_TAG = '<div class="wDescription clearfix">'
+SINOPTIK_ARCHIVE_TAG = '<div class="description"> <!--noindex-->'
+sinoptik_archive_tag = sinoptik_content.find(SINOPTIK_ARCHIVE_TAG, sinoptik_content.find(SSINFO_CONTAINER_TAG))
+sinoptik_archive_tag_size = len(SINOPTIK_ARCHIVE_TAG)
 #rp5_tepm_tag_index = rp5_content.find(rp5_temp_tag)
-rp5_archive_tag_start = rp5_archive_tag + rp5_archive_tag_size + 2
-rp5_archive = ''
-for char in rp5_content[rp5_archive_tag_start:]:
+sinoptik_archive_tag_start = sinoptik_archive_tag + sinoptik_archive_tag_size
+sinoptik_archive = ''
+for char in sinoptik_content[sinoptik_archive_tag_start:]:
 	if char != '<':
-		rp5_archive += char
+		sinoptik_archive += char
 	else:
-		rp5_archive = rp5_archive + '.'
 		break
 		
-'''
+
 
 print('SINOPTIK.UA in Kaniv: \n')
 print(f'Temperature: {html.unescape(sinoptik_temp)}\n')
-#print(f'Weather: {rp5_archive}\n')
+print(f'Weather: {sinoptik_archive}\n')
