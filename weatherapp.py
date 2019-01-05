@@ -54,6 +54,8 @@ print(f'Weather: {accu_cond}\n')
 
 #print("PAGE: ", accu_page) 
 
+
+#this site rp5.ua
 RP5_URL = "http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%9A%D0%B0%D0%BD%D0%B5%D0%B2%D1%96"
 
 #headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
@@ -97,3 +99,51 @@ for char in rp5_content[rp5_archive_tag_start:]:
 print('RP5 in Kaniv: \n')
 print(f'Temperature: {html.unescape(rp5_temp)}\n')
 print(f'Weather: {rp5_archive}\n')
+
+
+#this site sinoptik.ua
+SINOPTIK_URL = "https://ua.sinoptik.ua/%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0-%D0%BA%D0%B0%D0%BD%D1%96%D0%B2/10-%D0%B4%D0%BD%D1%96%D0%B2"
+
+#headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
+sinoptik_request = Request(SINOPTIK_URL, headers=headers)
+sinoptik_page = urlopen(sinoptik_request).read()
+
+sinoptik_content = sinoptik_page.decode('utf-8')
+#here is the temperature
+
+SINFO_CONTAINER_TAG = '<div class="lSide">'
+SINOPTIK_TEMP_TAG = '<p class="today-temp">'
+sinoptik_temp_tag = sinoptik_content.find(SINOPTIK_TEMP_TAG, sinoptik_content.find(SINFO_CONTAINER_TAG))
+sinoptik_temp_tag_size = len(SINOPTIK_TEMP_TAG)
+#rp5_tepm_tag_index = rp5_content.find(rp5_temp_tag)
+sinoptik_temp_tag_start = sinoptik_temp_tag + sinoptik_temp_tag_size
+sinoptik_temp = ''
+for char in sinoptik_content[sinoptik_temp_tag_start:]:
+	if char != '<':
+		sinoptik_temp += char
+	else:
+		break
+
+
+'''
+#тут виводимо дані стану погоди
+#here is the weather
+AINFO_CONTAINER_TAG = '<div class="ArchiveInfo">'
+RP5_ARCHIVE_TAG = '°F</span>'
+rp5_archive_tag = rp5_content.find(RP5_ARCHIVE_TAG, rp5_content.find(AINFO_CONTAINER_TAG))
+rp5_archive_tag_size = len(RP5_ARCHIVE_TAG)
+#rp5_tepm_tag_index = rp5_content.find(rp5_temp_tag)
+rp5_archive_tag_start = rp5_archive_tag + rp5_archive_tag_size + 2
+rp5_archive = ''
+for char in rp5_content[rp5_archive_tag_start:]:
+	if char != '<':
+		rp5_archive += char
+	else:
+		rp5_archive = rp5_archive + '.'
+		break
+		
+'''
+
+print('SINOPTIK.UA in Kaniv: \n')
+print(f'Temperature: {html.unescape(sinoptik_temp)}\n')
+#print(f'Weather: {rp5_archive}\n')
