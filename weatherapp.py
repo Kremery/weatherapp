@@ -148,6 +148,10 @@ print(f'Temperature: {html.unescape(sinoptik_temp)}\n')
 print(f'Weather: {sinoptik_archive}\n')
 
 
+def get_request_headers():
+	return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
+
+
 def main():
 	""" Main entry point.
 	"""
