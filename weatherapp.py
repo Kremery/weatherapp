@@ -146,3 +146,11 @@ for char in sinoptik_content[sinoptik_archive_tag_start:]:
 print('SINOPTIK.UA in Kaniv: \n')
 print(f'Temperature: {html.unescape(sinoptik_temp)}\n')
 print(f'Weather: {sinoptik_archive}\n')
+
+
+def main():
+	""" Main entry point.
+	"""
+
+if __name__ == '__main__':
+	main()
