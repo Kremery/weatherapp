@@ -151,10 +151,49 @@ print(f'Weather: {sinoptik_archive}\n')
 def get_request_headers():
 	return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
 
+def get_page_source():
+	"""функція, де ми отримуємо url,
+	   function where we get url
+	"""
+
+	request = Request(url, headers=get_request_headers())
+	page_sourse = urlopen(request).read()
+	return page_sourse.decode('utf-8')
+
+
+def get_tag_content(page_content, tag):
+	"""тут знаходимо потрібний текст
+	    this function finds the right content
+	"""
+	tag_index = page_content.find(tag)
+	tag_size = len(tag)
+	value_start = tag_index + tag_size
+
+	content = ''
+	for c in page_content[value_start:]:
+		if c != '<':
+			content += content
+		else:
+			break
+	return content
+
+
+def get_weather_info(page_content, tags):
+	"""
+	"""
+	return tuple([get_tag_content(page_content, tag) for tag in tags])
+
 
 def main():
 	""" Main entry point.
 	"""
+	weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS)} #, "PR5": (RP5_URL, RP5_TAGS)}
+	for name in weather_sites:
+		url, tags = weather_sites[name]
+		content = get_page_source(url)
+		temp, condition = get_weather_info(content, tags)
+		produce_output(name, temp, condition)
+
 
 if __name__ == '__main__':
 	main()
