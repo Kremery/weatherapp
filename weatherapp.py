@@ -6,6 +6,82 @@ import html
 from urllib.request import urlopen, Request
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
+ACCU_TAGS = ('<span class="large-temp">','<span class="cond">')
+
+RP5_URL = "http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%9A%D0%B0%D0%BD%D0%B5%D0%B2%D1%96"
+#RP5_TAGS = (rp5_content.find(RP5_TEMP_TAG, rp5_content.find(WINFO_CONTAINER_TAG)), ',"°F</span>')
+#WINFO_CONTAINER_TAG = '<div id="ArchTemp">'
+#RP5_TEMP_TAG = '<span class="t_0" style="display: block;">'
+RP5_TAGS = ('<span class="t_0" style="display: block;">', ',"°F</span>')
+
+
+
+
+def get_request_headers():
+	return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
+
+def get_page_source(url):
+	"""функція, де ми отримуємо url,
+	   function where we get url
+	"""
+
+	request = Request(url, headers=get_request_headers())
+	page_sourse = urlopen(request).read()
+	return page_sourse.decode('utf-8')
+
+
+def produce_output(provider_name, temp, condition):
+	"""функція що виводить інформацю із сайтів
+	   function that displays information from sites
+	"""
+
+	print(f'\n {provider_name}')
+	print(f'Temperature: {html.unescape(temp)}\n')
+	print(f'Condition: {condition}\n')
+	
+
+def get_tag_content(page_content, tag):
+	"""тут знаходимо потрібний текст
+	    this function finds the right content
+	"""
+	tag_index = page_content.find(tag)
+	tag_size = len(tag)
+	value_start = tag_index + tag_size
+
+	content = ''
+	for c in page_content[value_start:]:
+		if c != '<':
+			content += c
+		else:
+			break
+	return content
+
+
+def get_weather_info(page_content, tags):
+	"""
+	"""
+	return tuple([get_tag_content(page_content, tag) for tag in tags])
+
+
+def main():
+	""" Main entry point.
+	"""
+	weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS), "RP5": (RP5_URL, RP5_TAGS)} 
+	#, "PR5": (RP5_URL, RP5_TAGS)}
+	for name in weather_sites:
+		url, tags = weather_sites[name]
+		content = get_page_source(url)
+		temp, condition = get_weather_info(content, tags)
+		produce_output(name, temp, condition)
+
+
+if __name__ == '__main__':
+	main()
+
+
+
+
+'''
 #N1
 #response = urlopen(ACCU_URL)
 
@@ -146,54 +222,4 @@ for char in sinoptik_content[sinoptik_archive_tag_start:]:
 print('SINOPTIK.UA in Kaniv: \n')
 print(f'Temperature: {html.unescape(sinoptik_temp)}\n')
 print(f'Weather: {sinoptik_archive}\n')
-
-
-def get_request_headers():
-	return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
-
-def get_page_source():
-	"""функція, де ми отримуємо url,
-	   function where we get url
-	"""
-
-	request = Request(url, headers=get_request_headers())
-	page_sourse = urlopen(request).read()
-	return page_sourse.decode('utf-8')
-
-
-def get_tag_content(page_content, tag):
-	"""тут знаходимо потрібний текст
-	    this function finds the right content
-	"""
-	tag_index = page_content.find(tag)
-	tag_size = len(tag)
-	value_start = tag_index + tag_size
-
-	content = ''
-	for c in page_content[value_start:]:
-		if c != '<':
-			content += content
-		else:
-			break
-	return content
-
-
-def get_weather_info(page_content, tags):
-	"""
-	"""
-	return tuple([get_tag_content(page_content, tag) for tag in tags])
-
-
-def main():
-	""" Main entry point.
-	"""
-	weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS)} #, "PR5": (RP5_URL, RP5_TAGS)}
-	for name in weather_sites:
-		url, tags = weather_sites[name]
-		content = get_page_source(url)
-		temp, condition = get_weather_info(content, tags)
-		produce_output(name, temp, condition)
-
-
-if __name__ == '__main__':
-	main()
+'''
