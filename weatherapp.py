@@ -15,6 +15,10 @@ RP5_URL = "http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%9A%D0%B
 RP5_TAGS = ('<span class="t_0" style="display: block;">', '<span class="t_0" style="display: block;">')
 
 
+SINOPTIK_URL = "https://ua.sinoptik.ua/%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0-%D0%BA%D0%B0%D0%BD%D1%96%D0%B2"
+SINOPTIK_TAGS = ('<p class="today-temp">','<div class="description"> <!--noindex-->')
+
+
 
 
 def get_request_headers():
@@ -66,7 +70,9 @@ def get_weather_info(page_content, tags):
 def main():
 	""" Main entry point.
 	"""
-	weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS), "RP5": (RP5_URL, RP5_TAGS)} 
+	weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS), 
+	                                "RP5": (RP5_URL, RP5_TAGS), 
+	                                "SINOPTIK": (SINOPTIK_URL, SINOPTIK_TAGS)} 
 	#, "PR5": (RP5_URL, RP5_TAGS)}
 	for name in weather_sites:
 		url, tags = weather_sites[name]
