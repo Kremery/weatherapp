@@ -1,8 +1,9 @@
 """
 Weatherapp my project.
 """
-
+import sys
 import html
+import argparse
 from urllib.request import urlopen, Request
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
@@ -67,13 +68,31 @@ def get_weather_info(page_content, tags):
 	return tuple([get_tag_content(page_content, tag) for tag in tags])
 
 
-def main():
+def main(argv):
 	""" Main entry point.
 	"""
+
+	KNOWN_COMMANDS = {'accu': 'AccuWeather', 'rp5': 'RP5', 'sinoptik': 'SINOPTIK'}
+
+	parser = argparse.ArgumentParser()
+	parser.add_argument('command', help='Service name', nargs=1)
+	params = parser.parse_args(argv)
+
 	weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS), 
 	                                "RP5": (RP5_URL, RP5_TAGS), 
 	                                "SINOPTIK": (SINOPTIK_URL, SINOPTIK_TAGS)} 
 	#, "PR5": (RP5_URL, RP5_TAGS)}
+
+	if params.command:
+		command = params.command[0]
+		if command in KNOWN_COMMANDS:
+			weather_sites = {
+				KNOWN_COMMANDS[command]: weather_sites[KNOWN_COMMANDS[command]]
+			}
+		else:
+			print("Unknown command provided!")
+			sys.exit(1)
+
 	for name in weather_sites:
 		url, tags = weather_sites[name]
 		content = get_page_source(url)
@@ -82,7 +101,7 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv[1:])
 
 
 
