@@ -83,10 +83,15 @@ def get_weather_info(page_content):
 				if feal_temp:
 					weather_info['feal_temp'] = feal_temp.text
 				
-				wind_info = weather_details.find_all('li', class_='wind')
+				'''wind_info = weather_details.find_all('li', class_='wind')
 				if wind_info:
 					weather_info['wind'] = \
-					' '.join(map(lambda t: t.text.strip(), wind_info))
+					' '.join(map(lambda t: t.text.strip(), wind_info))'''
+
+				stats_info = weather_details.find_all('ul', class_='stats')
+				if stats_info:
+					weather_info['stats'] = \
+					' '.join(map(lambda t: t.text.strip(), stats_info))	
 
 	return weather_info
 
