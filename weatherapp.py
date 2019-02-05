@@ -59,9 +59,9 @@ def get_weather_info(page_content):
 	city_page = BeautifulSoup(page_content, 'html.parser')
 	
 	current_day_section = city_page.find(
-		'li', class_='day current first cl')
+		'li', class_='day current first cl')#weather information per day
 
-	weather_info = {}
+	weather_info = {}#tuple with weather information
 
 	if current_day_section:
 		current_day_url = current_day_section.find('a').attrs['href']
@@ -73,15 +73,15 @@ def get_weather_info(page_content):
 				weather_details = \
 					current_day.find('div', attrs={'id': 'detail-now'})
 				
-				condition = weather_details.find('span', class_='cond')
+				condition = weather_details.find('span', class_='cond')#weather information
 				if condition:
 					weather_info['cond'] = condition.text
 				
-				temp = weather_details.find('span', class_='large-temp')
+				temp = weather_details.find('span', class_='large-temp')#temperature information
 				if temp:
 					weather_info['temp'] = temp.text
 				
-				feal_temp = weather_details.find('span', class_='small-temp')
+				feal_temp = weather_details.find('span', class_='small-temp')#temperature feels information
 				if feal_temp:
 					weather_info['feal_temp'] = feal_temp.text
 				
@@ -90,14 +90,14 @@ def get_weather_info(page_content):
 					weather_info['wind'] = \
 					' '.join(map(lambda t: t.text.strip(), wind_info))'''
 
-				stats_info = weather_details.find_all('ul', class_='stats')
+				stats_info = weather_details.find_all('ul', class_='stats')#information fom the block stats
 				if stats_info:
 					weather_info['stats'] = \
 					' '.join(map(lambda t: t.text.strip(), stats_info))
 
 	else:
 		current_day_section = city_page.find(
-		'li', class_='night current first cl')
+		'li', class_='night current first cl')#weather information per night
 
 		if current_day_section:
 			current_day_url = current_day_section.find('a').attrs['href']
@@ -109,24 +109,19 @@ def get_weather_info(page_content):
 					weather_details = \
 						current_day.find('div', attrs={'id': 'detail-now'})
 					
-					condition = weather_details.find('span', class_='cond')
+					condition = weather_details.find('span', class_='cond')#weather information
 					if condition:
 						weather_info['cond'] = condition.text
 					
-					temp = weather_details.find('span', class_='large-temp')
+					temp = weather_details.find('span', class_='large-temp')#temperature information
 					if temp:
 						weather_info['temp'] = temp.text
 					
-					feal_temp = weather_details.find('span', class_='small-temp')
+					feal_temp = weather_details.find('span', class_='small-temp')#temperature feels information
 					if feal_temp:
 						weather_info['feal_temp'] = feal_temp.text
-				
-					'''wind_info = weather_details.find_all('li', class_='wind')
-					if wind_info:
-						weather_info['wind'] = \
-						' '.join(map(lambda t: t.text.strip(), wind_info))'''
 
-					stats_info = weather_details.find_all('ul', class_='stats')
+					stats_info = weather_details.find_all('ul', class_='stats')#information fom the block stats
 					if stats_info:
 						weather_info['stats'] = \
 						' '.join(map(lambda t: t.text.strip(), stats_info))
