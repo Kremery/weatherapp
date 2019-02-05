@@ -24,7 +24,7 @@ SINOPTIK_TAGS = ('<p class="today-temp">','<div class="description"> <!--noindex
 
 
 def get_request_headers():
-	return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
+    return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
 
 def get_page_source(url):
 	"""функція, де ми отримуємо url,
