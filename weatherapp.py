@@ -19,6 +19,9 @@ DEFAULT_URL = 'https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/3
 ACCU_BROWSE_LOCATIONS = 'https://www.accuweather.com/uk/browse-locations'
 CONFIG_LOCATION = 'location'
 CONFIG_FILE = 'weatherapp.ini'
+INFOWEATHER = 'infoweather'
+INFOWEATHER_FILE = 'infoweather.txt'
+
 
 
 
@@ -85,7 +88,7 @@ def save_configuration(name, url):
        save the selected location
     """
 
-    parser = configparser.Configparser()
+    parser = configparser.ConfigParser()
     parser[CONFIG_LOCATION] = {'name': name, 'url': url}
     with open(get_configuration_file(), 'w') as configfile:
         parser.write(configfile)
@@ -191,6 +194,36 @@ def get_accu_weather_info():
     city_name, city_url = get_configuration()
     content = get_page_source(city_url)
     produce_output(city_name, get_weather_info(content))
+    
+
+def get_infoweather_file():
+    '''функція що повертає шлях для зберігання файлу про стан погоди. По замовчуванню це диреторія користувача
+       a function that returns the way to save the file about the weather. By default, this is the user's directory
+    '''
+    return Path.home() / INFOWEATHER_FILE
+
+def save_infoweather_to_file(city_name, info):
+    """
+    """
+    with open(get_infoweather_file(), 'w') as infoweatherfile:
+        infoweatherfile.write(f'\n AccuWeather')
+        infoweatherfile.write(f'City: {city_name}\n')
+        infoweatherfile.write('-' * 20)
+        for key, value in info.items():
+            infoweatherfile.write(f'\n{key}: {html.unescape(value)}')
+        print('\nFile infoweather.txt has been saved to:')
+        print(get_infoweather_file())
+
+
+def save_infoweather():
+    """ функція що зберігає інформацію про погоду у файл
+       saves weather information to a file
+    """
+
+    city_name, city_url = get_configuration()
+    content = get_page_source(city_url)
+    save_infoweather_to_file(city_name,
+                         get_weather_info(content))
 
 
 def main(argv):
@@ -199,7 +232,8 @@ def main(argv):
 
     # KNOWN_COMMANDS = {'accu': 'AccuWeather', 'rp5': 'RP5', 'sinoptik': 'SINOPTIK'}
     KNOWN_COMMANDS = {'accu': get_accu_weather_info,
-                      'config': configurate}
+                      'config': configurate,
+                      'iws': save_infoweather}
 
     parser = argparse.ArgumentParser()
     parser.add_argument('command', help='Service name', nargs=1)
@@ -223,6 +257,3 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
-
-
-# v 1.24.40 
