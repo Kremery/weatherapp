@@ -13,7 +13,12 @@ from bs4 import BeautifulSoup
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
 ACCU_TAGS = ('<span class="large-temp">','<span class="cond">')
+
+DEFAULT_NAME = 'Kaniv'
+DEFAULT_URL = 'https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864'
 ACCU_BROWSE_LOCATIONS = 'https://www.accuweather.com/uk/browse-locations'
+CONFIG_LOCATION = 'location'
+CONFIG_FILE = 'weatherapp.ini'
 
 
 
@@ -69,6 +74,36 @@ def get_locations(locations_url):
     return locations
 
 
+def get_configuration_file():
+    '''функція що повертає шлях для зберігання файлу. По замовчуванню це диреторія користувача
+       a function that returns the path for file storage. By default, this is the user's directory
+    '''
+    return Path.home() / CONFIG_FILE
+
+def save_configuration(name, url):
+    """функція що зберігає вибрану локацію
+       save the selected location
+    """
+
+    parser = configparser.Configparser()
+    parser[CONFIG_LOCATION] = {'name': name, 'url': url}
+    with open(get_configuration_file(), 'w') as configfile:
+        parser.write(configfile)
+    
+
+def get_
+    '''функція що повертаю назву і адресу з файлу конфігурації
+       the function that returns the name and address from the configuration file
+    '''
+    name = DEFAULT_NAME
+    url = DEFAULT_URL
+    parser = configparser.Configparser
+    parser.read(get_configuration_file())
+
+    config = parser[CONFIG_LOCATION]
+    name, url = config['name'], config['url']
+    return name, url
+
 def configurate():
     """виводить список локацій
        displays a list of locations
@@ -82,7 +117,7 @@ def configurate():
         location = locations[selected_index - 1]
         locations = get_locations(location[1])
     
-    save_configuration(*location)
+    save_configuration(*location) # save the selected location
 
 
 def get_weather_info(page_content):
