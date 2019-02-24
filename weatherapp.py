@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
 ACCU_TAGS = ('<span class="large-temp">','<span class="cond">')
 
-DEFAULT_NAME = 'Kaniv'
+DEFAULT_NAME = 'Канів'
 DEFAULT_URL = 'https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864'
 ACCU_BROWSE_LOCATIONS = 'https://www.accuweather.com/uk/browse-locations'
 CONFIG_LOCATION = 'location'
@@ -91,24 +91,25 @@ def save_configuration(name, url):
         parser.write(configfile)
     
 
-def get_
-    '''функція що повертаю назву і адресу з файлу конфігурації
+def get_configuration():
+    '''функція що повертає назву і адресу з файлу конфігурації
        the function that returns the name and address from the configuration file
     '''
     name = DEFAULT_NAME
     url = DEFAULT_URL
-    parser = configparser.Configparser
+    parser = configparser.ConfigParser()
     parser.read(get_configuration_file())
 
-    config = parser[CONFIG_LOCATION]
-    name, url = config['name'], config['url']
+    if CONFIG_LOCATION in parser.sections():
+        config = parser[CONFIG_LOCATION]
+        name, url = config['name'], config['url']
+    
     return name, url
 
 def configurate():
     """виводить список локацій
        displays a list of locations
     """
-
     locations = get_locations(ACCU_BROWSE_LOCATIONS)
     while locations:
         for index, location in enumerate(locations):
@@ -124,7 +125,6 @@ def get_weather_info(page_content):
     """get information about the weather conditions from the site
        функція повертає інформацію про стан погоди 
     """
-
     city_page = BeautifulSoup(page_content, 'html.parser')
     
     current_day_section = city_page.find(
@@ -170,7 +170,7 @@ def get_weather_info(page_content):
     return weather_info
 
 
-def produce_output(info):
+def produce_output(city_name, info):
     """функція що виводить в консоль інформацю із сайта Accuweather
        function that displays information from site Accuweather
     """
