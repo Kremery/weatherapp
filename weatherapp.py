@@ -8,8 +8,9 @@ import argparse
 import configparser
 from pathlib import Path
 from urllib.request import urlopen, Request
-
+from urllib.parse import quote
 from bs4 import BeautifulSoup
+
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
 ACCU_TAGS = ('<span class="large-temp">','<span class="cond">')
@@ -28,6 +29,11 @@ INFOWEATHER_FILE = 'infoweather.txt'
 RP5_URL = "http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%9A%D0%B0%D0%BD%D0%B5%D0%B2%D1%96"
 RP5_TAGS = ('<span class="t_0" style="display: block;">', '<span class="t_0" style="display: block;">')
 
+DEFAULT_NAME_RP5 = 'Канів'
+DEFAULT_URL_RP5 = 'http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%9A%D0%B0%D0%BD%D0%B5%D0%B2%D1%96'
+RP5_BROWSE_LOCATIONS = 'http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B2_%D1%81%D0%B2%D1%96%D1%82%D1%96'
+CONFIG_FILE_RP5 = 'weatherapp_rp5.ini'
+CONFIG_LOCATION_RP5 = 'location_rp5'
 
 SINOPTIK_URL = "https://ua.sinoptik.ua/%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0-%D0%BA%D0%B0%D0%BD%D1%96%D0%B2"
 SINOPTIK_TAGS = ('<p class="today-temp">','<div class="description"> <!--noindex-->')
@@ -64,7 +70,8 @@ def get_tag_content(page_content, tag):
 
 
 def get_locations(locations_url):
-    """
+    """Вибір локацій для Accuweather
+       location selection from Accuweather
     """
     locations_page = get_page_source(locations_url)
     soup = BeautifulSoup(locations_page, 'html.parser')
@@ -75,6 +82,23 @@ def get_locations(locations_url):
         location = location.find('em').text
         locations.append((location, url)) 
     return locations
+
+
+def get_locations_rp5(locations_url):
+    """Вибір локацій для RP5
+       location selection from RP5
+    """
+    locations_page = get_page_source(locations_url)
+    soup = BeautifulSoup(locations_page, 'html.parser')
+    
+    locations_rp5 = []
+    url_add = 'http://rp5.ua/'
+    for location in soup.find_all('div', class_='country_map_links'):
+        url = url_add + quote(location.find('a').attrs['href'])
+        # url = location.find('a').attrs['href']
+        location = location.find('a').text
+        locations_rp5.append((location, url)) 
+    return locations_rp5
 
 
 def get_configuration_file():
@@ -92,6 +116,23 @@ def save_configuration(name, url):
     parser[CONFIG_LOCATION] = {'name': name, 'url': url}
     with open(get_configuration_file(), 'w') as configfile:
         parser.write(configfile)
+
+
+def get_configuration_file_rp5():
+    '''функція що повертає шлях для зберігання файлу. По замовчуванню це диреторія користувача
+       a function that returns the path for file storage. By default, this is the user's directory
+    '''
+    return Path.home() / CONFIG_FILE_RP5
+
+def save_configuration_rp5(name, url):
+    """функція що зберігає вибрану локацію
+       save the selected location
+    """
+
+    parser = configparser.ConfigParser()
+    parser[CONFIG_LOCATION_RP5] = {'name': name, 'url': url}
+    with open(get_configuration_file_rp5(), 'w') as configfile_rp5:
+        parser.write(configfile_rp5)
     
 
 def get_configuration():
@@ -109,6 +150,23 @@ def get_configuration():
     
     return name, url
 
+
+def get_configuration_rp5():
+    '''функція що повертає назву і адресу з файлу конфігурації
+       the function that returns the name and address from the configuration file
+    '''
+    name = DEFAULT_NAME_RP5
+    url = DEFAULT_URL_RP5
+    parser = configparser.ConfigParser()
+    parser.read(get_configuration_file_rp5())
+
+    if CONFIG_LOCATION_RP5 in parser.sections():
+        config = parser[CONFIG_LOCATION_RP5]
+        name, url = config['name'], config['url']
+    
+    return name, url
+
+
 def configurate():
     """виводить список локацій
        displays a list of locations
@@ -122,6 +180,21 @@ def configurate():
         locations = get_locations(location[1])
     
     save_configuration(*location) # save the selected location
+
+
+def configurate_rp5():
+    """виводить список локацій для сайту RP5
+       displays a list of locations for RP5
+    """
+    locations_rp5 = get_locations_rp5(RP5_BROWSE_LOCATIONS)
+    while locations_rp5:
+        for index, location in enumerate(locations_rp5):
+            print(f'{index + 1}. {location[0]}')
+        selected_index = int(input('Please select location: '))
+        location = locations_rp5[selected_index - 1]
+        locations_rp5 = get_locations_rp5(location[1])
+    
+    save_configuration_rp5(*location) # save the selected location for RP5
 
 
 def get_weather_info(page_content):
@@ -222,8 +295,7 @@ def save_infoweather():
 
     city_name, city_url = get_configuration()
     content = get_page_source(city_url)
-    save_infoweather_to_file(city_name,
-                         get_weather_info(content))
+    save_infoweather_to_file(city_name, get_weather_info(content))
 
 
 def main(argv):
@@ -232,7 +304,9 @@ def main(argv):
 
     # KNOWN_COMMANDS = {'accu': 'AccuWeather', 'rp5': 'RP5', 'sinoptik': 'SINOPTIK'}
     KNOWN_COMMANDS = {'accu': get_accu_weather_info,
+                      # 'rp5': get_rp5_weather_info,
                       'config': configurate,
+                      'config_rp5': configurate_rp5,
                       'iws': save_infoweather}
 
     parser = argparse.ArgumentParser()
