@@ -129,7 +129,7 @@ def save_configuration(name, url):
 
 
 def get_configuration_file_rp5():
-    '''функція що повертає шлях для зберігання файлу .
+    '''функція що повертає шлях для зберігання файлу.
        a function that returns the path for file storage for site RP5.
     '''
     return Path.cwd() / CONFIG_FILE_RP5
