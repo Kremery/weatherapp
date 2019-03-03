@@ -46,7 +46,7 @@ def get_page_source(url):
     """функція, де ми отримуємо url і повертаємо html-код із сторінки,
        a function where we get a url and return html-code from the page
     """
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     request = Request(url, headers=get_request_headers())
     page_sourse = urlopen(request).read()
     return page_sourse.decode('utf-8')
@@ -149,7 +149,7 @@ def get_configuration():
     '''функція що повертає назву і адресу з файлу конфігурації
        the function that returns the name and address from the configuration file
     '''
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     name = DEFAULT_NAME
     url = DEFAULT_URL
     parser = configparser.ConfigParser()
@@ -212,7 +212,7 @@ def get_weather_info(page_content):
     """get information about the weather conditions from the site
        функція повертає інформацію про стан погоди 
     """
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     city_page = BeautifulSoup(page_content, 'html.parser')
     
     current_day_section = city_page.find(
@@ -285,7 +285,7 @@ def get_infoweather_file():
     '''функція що повертає шлях для зберігання файлу про стан погоди. По замовчуванню це диреторія користувача
        a function that returns the way to save the file about the weather. By default, this is the user's directory
     '''
-    return Path.swd() / INFOWEATHER_FILE
+    return Path.cwd() / INFOWEATHER_FILE
 
 def save_infoweather_to_file(city_name, info):
     """
