@@ -112,8 +112,8 @@ def get_locations_rp5(locations_url):
 
 
 def get_configuration_file():
-    '''функція що повертає шлях для зберігання файлу. По замовчуванню це диреторія користувача
-       a function that returns the path for file storage. By default, this is the user's directory
+    '''функція що повертає шлях для зберігання файлу.
+       a function that returns the path for file storage. 
     '''
     return Path.cwd() / CONFIG_FILE
 
@@ -129,10 +129,10 @@ def save_configuration(name, url):
 
 
 def get_configuration_file_rp5():
-    '''функція що повертає шлях для зберігання файлу . По замовчуванню це диреторія користувача
-       a function that returns the path for file storage for site RP5. By default, this is the user's directory
+    '''функція що повертає шлях для зберігання файлу .
+       a function that returns the path for file storage for site RP5.
     '''
-    return Path.home() / CONFIG_FILE_RP5
+    return Path.cwd() / CONFIG_FILE_RP5
 
 def save_configuration_rp5(name, url):
     """функція що зберігає вибрану локацію
