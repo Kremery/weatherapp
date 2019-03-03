@@ -46,7 +46,7 @@ def get_page_source(url):
     """функція, де ми отримуємо url і повертаємо html-код із сторінки,
        a function where we get a url and return html-code from the page
     """
-    #  import pdb; pdb.set_trace()
+
     request = Request(url, headers=get_request_headers())
     page_sourse = urlopen(request).read()
     return page_sourse.decode('utf-8')
@@ -91,7 +91,6 @@ def get_locations_rp5(locations_url):
     locations_page = get_page_source(locations_url)
     soup = BeautifulSoup(locations_page, 'html.parser')
     
-    # import pdb; pdb.set_trace()
     locations = []
     url_add = 'http://rp5.ua/'
     drilldown = soup.find_all('div', class_='country_map_links')
@@ -121,7 +120,7 @@ def save_configuration(name, url):
     """функція що зберігає вибрану локацію
        save the selected location
     """
-    # import pdb; pdb.set_trace()
+    
     parser = configparser.ConfigParser()
     parser[CONFIG_LOCATION] = {'name': name, 'url': url}
     with open(get_configuration_file(), 'w') as configfile:
@@ -138,7 +137,7 @@ def save_configuration_rp5(name, url):
     """функція що зберігає вибрану локацію
        save the selected location
     """
-    # import pdb; pdb.set_trace()
+    
     parser = configparser.ConfigParser(strict=False, interpolation=None)
     parser[CONFIG_LOCATION_RP5] = {'name': name, 'url': url}
     with open(get_configuration_file_rp5(), 'w') as configfile:
@@ -149,7 +148,7 @@ def get_configuration():
     '''функція що повертає назву і адресу з файлу конфігурації
        the function that returns the name and address from the configuration file
     '''
-    # import pdb; pdb.set_trace()
+    import pdb; pdb.set_trace()
     name = DEFAULT_NAME
     url = DEFAULT_URL
     parser = configparser.ConfigParser()
@@ -168,7 +167,7 @@ def get_configuration_rp5():
     '''
     name = DEFAULT_NAME_RP5
     url = DEFAULT_URL_RP5
-    parser = configparser.ConfigParser()
+    parser = configparser.ConfigParser(strict=False, interpolation=None)
     parser.read(get_configuration_file_rp5())
 
     if CONFIG_LOCATION_RP5 in parser.sections():
@@ -212,7 +211,7 @@ def get_weather_info(page_content):
     """get information about the weather conditions from the site
        функція повертає інформацію про стан погоди 
     """
-    # import pdb; pdb.set_trace()
+
     city_page = BeautifulSoup(page_content, 'html.parser')
     
     current_day_section = city_page.find(
@@ -233,7 +232,7 @@ def get_weather_info(page_content):
             weather_details = \
                 current_day.find('div', attrs={'id': 'detail-now'})
 				
-            condition = weather_details.find('span', class_='cond')#weather information
+            condition = weather_details.find('span', class_='cond')#weather_cond information
             if condition:
                 weather_info['cond'] = condition.text
 				
@@ -257,12 +256,62 @@ def get_weather_info(page_content):
 
     return weather_info
 
+# зупинився ТУТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+def get_weather_info_rp5(page_content):
+    """get information about the weather conditions from the site RP5
+       функція повертає інформацію про стан погоди з сайту RP5
+    """
+    import pdb; pdb.set_trace()
+    city_page = BeautifulSoup(page_content, 'html.parser')
+    
+    current_day_section = city_page.find(
+        'li', class_='day current first cl')#weather information per day
+
+    if current_day_section == None:
+        current_day_section = city_page.find(
+        'li', class_='night current first cl')#weather information per night
+
+    weather_info = {}#tuple with weather information
+
+    current_day_url = current_day_section.find('a').attrs['href']
+    if current_day_url:
+        current_day_page = get_page_source(current_day_url)
+        if current_day_page:
+            current_day = \
+                BeautifulSoup(current_day_page, 'html.parser')
+            weather_details = \
+                current_day.find('div', attrs={'id': 'detail-now'})
+                
+            condition = weather_details.find('span', class_='cond')#weather_cond information
+            if condition:
+                weather_info['cond'] = condition.text
+                
+            temp = weather_details.find('span', class_='large-temp')#temperature information
+            if temp:
+                weather_info['temp'] = temp.text
+                
+            feal_temp = weather_details.find('span', class_='small-temp')#temperature feels information
+            if feal_temp:
+                weather_info['feal_temp'] = feal_temp.text
+                
+            '''wind_info = weather_details.find_all('li', class_='wind')
+            if wind_info:
+                weather_info['wind'] = \
+                ' '.join(map(lambda t: t.text.strip(), wind_info))'''
+
+            stats_info = weather_details.find_all('ul', class_='stats')#information fom the block stats
+            if stats_info:
+                weather_info['stats'] = \
+                ' '.join(map(lambda t: t.text.strip(), stats_info))
+
+    return weather_info
+
 
 def produce_output(city_name, info):
     """функція що виводить в консоль інформацю із сайта Accuweather
        function that displays information from site Accuweather
     """
-    import pdb; pdb.set_trace()
+    
     print('Accu Weather: \n')
     print(f'{city_name}')
     print('+'*20)
@@ -271,15 +320,38 @@ def produce_output(city_name, info):
         print(f'{key}: {html.unescape(value)}')
 
 
-def get_accu_weather_info():
-    """функція, яка поверне інформацію про стан погоду за url-адресою, яку збережено у файлі концігурації
-       a function that returns the weather state information at the url-address stored in the concatenation file
+def produce_output_RP5(city_name, info):
+    """функція що виводить в консоль інформацю із сайта RP5
+       function that displays information from site RP5
     """
     import pdb; pdb.set_trace()
+    print('RP5: \n')
+    print(f'{city_name}')
+    print('=='*15)
+
+    for key, value in info.items():
+        print(f'{key}: {html.unescape(value)}')
+
+
+def get_accu_weather_info():
+    """функція, яка поверне інформацію про стан погоди для сайту Accuweather за url-адресою, яку збережено у файлі концігурації
+       a function that returns the weather state information for site AccuWeather at the url-address stored in the concatenation file
+    """
+
     city_name, city_url = get_configuration()
     content = get_page_source(city_url)
-    produce_output(city_name, get_weather_info(content))
+    produce_output(city_name, get_weather_info_rp5(content))
     
+
+def get_rp5_weather_info():
+    """функція, яка поверне інформацію про стан погоди для сайту RP5 за url-адресою, яку збережено у файлі концігурації
+       a function that returns the weather state information for site RP5 at the url-address stored in the concatenation file
+    """
+    import pdb; pdb.set_trace()
+    city_name, city_url = get_configuration_rp5()
+    content = get_page_source(city_url)
+    produce_output_rp5(city_name, get_weather_info_rp5(content))
+
 
 def get_infoweather_file():
     '''функція що повертає шлях для зберігання файлу про стан погоди. По замовчуванню це диреторія користувача
@@ -316,7 +388,7 @@ def main(argv):
 
     # KNOWN_COMMANDS = {'accu': 'AccuWeather', 'rp5': 'RP5', 'sinoptik': 'SINOPTIK'}
     KNOWN_COMMANDS = {'accu': get_accu_weather_info,
-                      # 'rp5': get_rp5_weather_info,
+                      'rp5': get_rp5_weather_info,
                       'config': configurate,
                       'config_rp5': configurate_rp5,
                       'iws': save_infoweather}
