@@ -18,8 +18,8 @@ ACCU_TAGS = ('<span class="large-temp">','<span class="cond">')
 DEFAULT_NAME = 'Канів'
 DEFAULT_URL = 'https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864'
 ACCU_BROWSE_LOCATIONS = 'https://www.accuweather.com/uk/browse-locations'
-CONFIG_LOCATION = 'location_accu'
-CONFIG_FILE = 'weatherapp.ini'
+CONFIG_LOCATION_ACCU = 'location_accu'
+CONFIG_FILE_ACCU = 'weatherapp_accu.ini'
 INFOWEATHER = 'infoweather'
 INFOWEATHER_FILE = 'infoweather.txt'
 
@@ -51,23 +51,6 @@ def get_page_source(url):
     page_sourse = urlopen(request).read()
     return page_sourse.decode('utf-8')
 	
-
-def get_tag_content(page_content, tag):
-    """тут знаходимо потрібний текст
-        this function finds the right content
-    """
-    tag_index = page_content.find(tag)
-    tag_size = len(tag)
-    value_start = tag_index + tag_size
-
-    content = ''
-    for c in page_content[value_start:]:
-        if c != '<':
-            content += c
-        else:
-            break
-    return content
-
 
 def get_locations(locations_url):
     """Вибір локацій для Accuweather
@@ -110,20 +93,20 @@ def get_locations_rp5(locations_url):
     return locations
 
 
-def get_configuration_file():
+def get_configuration_file_accu():
     '''функція що повертає шлях для зберігання файлу.
        a function that returns the path for file storage. 
     '''
-    return Path.cwd() / CONFIG_FILE
+    return Path.cwd() / CONFIG_FILE_ACCU
 
-def save_configuration(name, url):
+def save_configuration_accu(name, url):
     """функція що зберігає вибрану локацію
        save the selected location
     """
     
     parser = configparser.ConfigParser()
-    parser[CONFIG_LOCATION] = {'name': name, 'url': url}
-    with open(get_configuration_file(), 'w') as configfile:
+    parser[CONFIG_LOCATION_ACCU] = {'name': name, 'url': url}
+    with open(get_configuration_file_accu(), 'w') as configfile:
         parser.write(configfile)
 
 
@@ -144,18 +127,18 @@ def save_configuration_rp5(name, url):
         parser.write(configfile)
     
 
-def get_configuration():
-    '''функція що повертає назву і адресу з файлу конфігурації
-       the function that returns the name and address from the configuration file
+def get_configuration_accu():
+    '''функція що повертає назву і адресу з файлу конфігурації для сайту AccuWeather
+       the function that returns the name and address from the configuration file for site AccuWeather
     '''
-    import pdb; pdb.set_trace()
+    
     name = DEFAULT_NAME
     url = DEFAULT_URL
     parser = configparser.ConfigParser()
-    parser.read(get_configuration_file())
+    parser.read(get_configuration_file_accu())
 
-    if CONFIG_LOCATION in parser.sections():
-        config = parser[CONFIG_LOCATION]
+    if CONFIG_LOCATION_ACCU in parser.sections():
+        config = parser[CONFIG_LOCATION_ACCU]
         name, url = config['name'], config['url']
     
     return name, url
@@ -177,9 +160,9 @@ def get_configuration_rp5():
     return name, url
 
 
-def configurate():
+def configurate_accu():
     """виводить список локацій
-       displays a list of locations
+       displays a list of locations for site AccuWeather
     """
     locations = get_locations(ACCU_BROWSE_LOCATIONS)
     while locations:
@@ -189,7 +172,7 @@ def configurate():
         location = locations[selected_index - 1]
         locations = get_locations(location[1])
     
-    save_configuration(*location) # save the selected location
+    save_configuration_accu(*location) # save the selected location
 
 
 def configurate_rp5():
@@ -207,7 +190,7 @@ def configurate_rp5():
     save_configuration_rp5(*location) # save the selected location for rp5
 
 
-def get_weather_info(page_content):
+def get_weather_info_accu(page_content):
     """get information about the weather conditions from the site
        функція повертає інформацію про стан погоди 
     """
@@ -244,11 +227,6 @@ def get_weather_info(page_content):
             if feal_temp:
                 weather_info['feal_temp'] = feal_temp.text
 				
-            '''wind_info = weather_details.find_all('li', class_='wind')
-            if wind_info:
-                weather_info['wind'] = \
-                ' '.join(map(lambda t: t.text.strip(), wind_info))'''
-
             stats_info = weather_details.find_all('ul', class_='stats')#information fom the block stats
             if stats_info:
                 weather_info['stats'] = \
@@ -256,54 +234,20 @@ def get_weather_info(page_content):
 
     return weather_info
 
-# зупинився ТУТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 def get_weather_info_rp5(page_content):
     """get information about the weather conditions from the site RP5
        функція повертає інформацію про стан погоди з сайту RP5
     """
-    import pdb; pdb.set_trace()
     city_page = BeautifulSoup(page_content, 'html.parser')
     
     current_day_section = city_page.find(
-        'li', class_='day current first cl')#weather information per day
-
-    if current_day_section == None:
-        current_day_section = city_page.find(
-        'li', class_='night current first cl')#weather information per night
+        'div', class_='ArchiveInfo')#weather information per day
 
     weather_info = {}#tuple with weather information
-
-    current_day_url = current_day_section.find('a').attrs['href']
-    if current_day_url:
-        current_day_page = get_page_source(current_day_url)
-        if current_day_page:
-            current_day = \
-                BeautifulSoup(current_day_page, 'html.parser')
-            weather_details = \
-                current_day.find('div', attrs={'id': 'detail-now'})
-                
-            condition = weather_details.find('span', class_='cond')#weather_cond information
-            if condition:
-                weather_info['cond'] = condition.text
-                
-            temp = weather_details.find('span', class_='large-temp')#temperature information
-            if temp:
-                weather_info['temp'] = temp.text
-                
-            feal_temp = weather_details.find('span', class_='small-temp')#temperature feels information
-            if feal_temp:
-                weather_info['feal_temp'] = feal_temp.text
-                
-            '''wind_info = weather_details.find_all('li', class_='wind')
-            if wind_info:
-                weather_info['wind'] = \
-                ' '.join(map(lambda t: t.text.strip(), wind_info))'''
-
-            stats_info = weather_details.find_all('ul', class_='stats')#information fom the block stats
-            if stats_info:
-                weather_info['stats'] = \
-                ' '.join(map(lambda t: t.text.strip(), stats_info))
-
+    if current_day_section:
+        weather_info['weather_info'] = current_day_section.text
+    
     return weather_info
 
 
@@ -320,14 +264,14 @@ def produce_output(city_name, info):
         print(f'{key}: {html.unescape(value)}')
 
 
-def produce_output_RP5(city_name, info):
+def produce_output_rp5(city_name, info):
     """функція що виводить в консоль інформацю із сайта RP5
        function that displays information from site RP5
     """
-    import pdb; pdb.set_trace()
+    
     print('RP5: \n')
     print(f'{city_name}')
-    print('=='*15)
+    print('=='*18)
 
     for key, value in info.items():
         print(f'{key}: {html.unescape(value)}')
@@ -338,16 +282,16 @@ def get_accu_weather_info():
        a function that returns the weather state information for site AccuWeather at the url-address stored in the concatenation file
     """
 
-    city_name, city_url = get_configuration()
+    city_name, city_url = get_configuration_accu()
     content = get_page_source(city_url)
-    produce_output(city_name, get_weather_info_rp5(content))
+    produce_output(city_name, get_weather_info_accu(content))
     
 
 def get_rp5_weather_info():
     """функція, яка поверне інформацію про стан погоди для сайту RP5 за url-адресою, яку збережено у файлі концігурації
        a function that returns the weather state information for site RP5 at the url-address stored in the concatenation file
     """
-    import pdb; pdb.set_trace()
+    
     city_name, city_url = get_configuration_rp5()
     content = get_page_source(city_url)
     produce_output_rp5(city_name, get_weather_info_rp5(content))
@@ -389,7 +333,7 @@ def main(argv):
     # KNOWN_COMMANDS = {'accu': 'AccuWeather', 'rp5': 'RP5', 'sinoptik': 'SINOPTIK'}
     KNOWN_COMMANDS = {'accu': get_accu_weather_info,
                       'rp5': get_rp5_weather_info,
-                      'config': configurate,
+                      'config_accu': configurate_accu,
                       'config_rp5': configurate_rp5,
                       'iws': save_infoweather}
 
@@ -417,5 +361,4 @@ if __name__ == '__main__':
     main(sys.argv[1:])
 
 
-# saved syntax
 # import pdb; pdb.set_trace()
