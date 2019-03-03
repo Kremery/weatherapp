@@ -115,7 +115,7 @@ def get_configuration_file():
     '''функція що повертає шлях для зберігання файлу. По замовчуванню це диреторія користувача
        a function that returns the path for file storage. By default, this is the user's directory
     '''
-    return Path.home() / CONFIG_FILE
+    return Path.cwd() / CONFIG_FILE
 
 def save_configuration(name, url):
     """функція що зберігає вибрану локацію
