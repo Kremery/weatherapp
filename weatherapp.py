@@ -46,7 +46,7 @@ def get_page_source(url):
     """функція, де ми отримуємо url і повертаємо html-код із сторінки,
        a function where we get a url and return html-code from the page
     """
-
+    import pdb; pdb.set_trace()
     request = Request(url, headers=get_request_headers())
     page_sourse = urlopen(request).read()
     return page_sourse.decode('utf-8')
@@ -149,6 +149,7 @@ def get_configuration():
     '''функція що повертає назву і адресу з файлу конфігурації
        the function that returns the name and address from the configuration file
     '''
+    import pdb; pdb.set_trace()
     name = DEFAULT_NAME
     url = DEFAULT_URL
     parser = configparser.ConfigParser()
@@ -211,6 +212,7 @@ def get_weather_info(page_content):
     """get information about the weather conditions from the site
        функція повертає інформацію про стан погоди 
     """
+    import pdb; pdb.set_trace()
     city_page = BeautifulSoup(page_content, 'html.parser')
     
     current_day_section = city_page.find(
@@ -260,7 +262,7 @@ def produce_output(city_name, info):
     """функція що виводить в консоль інформацю із сайта Accuweather
        function that displays information from site Accuweather
     """
-
+    import pdb; pdb.set_trace()
     print('Accu Weather: \n')
     print(f'{city_name}')
     print('+'*20)
@@ -273,7 +275,7 @@ def get_accu_weather_info():
     """функція, яка поверне інформацію про стан погоду за url-адресою, яку збережено у файлі концігурації
        a function that returns the weather state information at the url-address stored in the concatenation file
     """
-
+    import pdb; pdb.set_trace()
     city_name, city_url = get_configuration()
     content = get_page_source(city_url)
     produce_output(city_name, get_weather_info(content))
@@ -283,7 +285,7 @@ def get_infoweather_file():
     '''функція що повертає шлях для зберігання файлу про стан погоди. По замовчуванню це диреторія користувача
        a function that returns the way to save the file about the weather. By default, this is the user's directory
     '''
-    return Path.home() / INFOWEATHER_FILE
+    return Path.swd() / INFOWEATHER_FILE
 
 def save_infoweather_to_file(city_name, info):
     """
@@ -341,3 +343,7 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
+
+# saved syntax
+# import pdb; pdb.set_trace()
