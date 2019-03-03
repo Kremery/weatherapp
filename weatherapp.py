@@ -46,7 +46,7 @@ def get_page_source(url):
     """функція, де ми отримуємо url і повертаємо html-код із сторінки,
        a function where we get a url and return html-code from the page
     """
-    # import pdb; pdb.set_trace()
+    #  import pdb; pdb.set_trace()
     request = Request(url, headers=get_request_headers())
     page_sourse = urlopen(request).read()
     return page_sourse.decode('utf-8')
