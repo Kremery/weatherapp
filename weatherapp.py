@@ -56,11 +56,19 @@ def get_cache_directory():
     return Path.home() / CACHE_DIR
 
 
+def get_url_hash(url):
+    """Повертає унікальне ім'я файлу за url.
+       Returns a unique file name for url.
+    """
+
+    return hashlib.md5(url.encode('utf-8')).hexdigest()
+
+
 def save_cache(url, page_sourse):
     """Save page source data to file.
     """
     
-    url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()
+    url_hash = get_url_hash(url)
     cache_dir = get_cache_directory()
     if not cache_dir.exists():
         cache_dir.mkdir(paraments=True)
@@ -69,14 +77,36 @@ def save_cache(url, page_sourse):
         cache_file.write(page_sourse)
 
 
+def get_cache(url):
+    """Повертає дані кешу, якщо такі є.
+       Return cache data if any.
+    """
+    
+    cache = b''
+    url_hash = get_url_hash(url)
+    cache_dir = get_cache_directory()
+    if cache_dir.exists():
+        cache_path = cache_dir / url_hash
+        if cache_path.exists():
+            with cache_path.open('rb') as cache_file:
+                cache = cache_file.read()
+
+    return cache
+
+
 def get_page_source(url):
-    """функція, де ми отримуємо url і повертаємо html-код із сторінки,
-       a function where we get a url and return html-code from the page
+    """функція, де ми отримуємо url і повертаємо html-код із сторінки або з файлової системи (кешу),
+       a function where we get a url and return html-code from the page or from a file system
     """
 
-    request = Request(url, headers=get_request_headers())
-    page_sourse = urlopen(request).read()
-    save_cache(url, page_sourse)
+    cache = get_cache(url)
+    if cache:
+        page_sourse = cache
+    else:
+        request = Request(url, headers=get_request_headers())
+        page_sourse = urlopen(request).read()
+        save_cache(url, page_sourse)
+    
     return page_sourse.decode('utf-8')
 	
 
