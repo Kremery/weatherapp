@@ -4,12 +4,16 @@ Simple script for weather sites scrapping
 """
 import sys
 import html
+import hashlib
 import argparse
 import configparser
 from pathlib import Path
 from urllib.request import urlopen, Request
 from urllib.parse import quote
 from bs4 import BeautifulSoup
+
+FAKE_MOZILLA_AGENT = 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'
+CACHE_DIR = 'wappcache'
 
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
@@ -22,7 +26,6 @@ CONFIG_LOCATION_ACCU = 'location_accu'
 CONFIG_FILE_ACCU = 'weatherapp_accu.ini'
 INFOWEATHER = 'infoweather'
 INFOWEATHER_FILE = 'infoweather.txt'
-
 
 
 
@@ -40,7 +43,31 @@ SINOPTIK_TAGS = ('<p class="today-temp">','<div class="description"> <!--noindex
 
 
 def get_request_headers():
-    return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'}
+"""Returns custom headers for url requests.
+"""
+
+    return {'User-Agent': FAKE_MOZILLA_AGENT}
+
+
+def get_cache_directory():
+    '''функція що повертає шлях до директорії.
+       Path to cache directory. 
+    '''
+    return Path.home() / CACHE_DIR
+
+
+def save_cache(url, page_sourse):
+    """Save page source data to file.
+    """
+    
+    url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()
+    cache_dir = get_cache_directory()
+    if not cache_dir.exists():
+        cache_dir.mkdir(paraments=True)
+    
+    with (cache_dir / url_hash).open('wb') as cache_file:
+        cache_file.write(page_sourse)
+
 
 def get_page_source(url):
     """функція, де ми отримуємо url і повертаємо html-код із сторінки,
@@ -49,10 +76,11 @@ def get_page_source(url):
 
     request = Request(url, headers=get_request_headers())
     page_sourse = urlopen(request).read()
+    save_cache(url, page_sourse)
     return page_sourse.decode('utf-8')
 	
 
-def get_locations(locations_url):
+def get_locations_accu(locations_url):
     """Вибір локацій для Accuweather
        location selection from Accuweather
     """
@@ -251,7 +279,7 @@ def get_weather_info_rp5(page_content):
     return weather_info
 
 
-def produce_output(city_name, info):
+def produce_output_accu(city_name, info):
     """функція що виводить в консоль інформацю із сайта Accuweather
        function that displays information from site Accuweather
     """
@@ -284,7 +312,7 @@ def get_accu_weather_info():
 
     city_name, city_url = get_configuration_accu()
     content = get_page_source(city_url)
-    produce_output(city_name, get_weather_info_accu(content))
+    produce_output_accu(city_name, get_weather_info_accu(content))
     
 
 def get_rp5_weather_info():
@@ -306,11 +334,13 @@ def get_infoweather_file():
 def save_infoweather_to_file(city_name, info):
     """
     """
+    import pdb; pdb.set_trace()
     with open(get_infoweather_file(), 'w') as infoweatherfile:
         infoweatherfile.write(f'\n AccuWeather')
         infoweatherfile.write(f'City: {city_name}\n')
         infoweatherfile.write('-' * 20)
         for key, value in info.items():
+            # infoweatherfile.write(f'\n{key}: {value}')
             infoweatherfile.write(f'\n{key}: {html.unescape(value)}')
         print('\nFile infoweather.txt has been saved to:')
         print(get_infoweather_file())
@@ -320,10 +350,10 @@ def save_infoweather():
     """ функція що зберігає інформацію про погоду у файл
        saves weather information to a file
     """
-
-    city_name, city_url = get_configuration()
+    import pdb; pdb.set_trace()
+    city_name, city_url = get_configuration_accu()
     content = get_page_source(city_url)
-    save_infoweather_to_file(city_name, get_weather_info(content))
+    save_infoweather_to_file(city_name, get_weather_info_accu(content))
 
 
 def main(argv):
@@ -340,12 +370,6 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('command', help='Service name', nargs=1)
     params = parser.parse_args(argv)
-
-    '''weather_sites = {"AccuWeather": (ACCU_URL, ACCU_TAGS), 
-                                    "RP5": (RP5_URL, RP5_TAGS), 
-                                    "SINOPTIK": (SINOPTIK_URL, SINOPTIK_TAGS)} 
-                                    '''
-    #, "PR5": (RP5_URL, RP5_TAGS)}
 
     if params.command:
         command = params.command[0]
