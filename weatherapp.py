@@ -97,7 +97,7 @@ def get_configuration_file_accu():
     '''функція що повертає шлях для зберігання файлу.
        a function that returns the path for file storage. 
     '''
-    return Path.cwd() / CONFIG_FILE_ACCU
+    return Path.home() / CONFIG_FILE_ACCU
 
 def save_configuration_accu(name, url):
     """функція що зберігає вибрану локацію
@@ -114,7 +114,7 @@ def get_configuration_file_rp5():
     '''функція що повертає шлях для зберігання файлу.
        a function that returns the path for file storage for site RP5.
     '''
-    return Path.cwd() / CONFIG_FILE_RP5
+    return Path.home() / CONFIG_FILE_RP5
 
 def save_configuration_rp5(name, url):
     """функція що зберігає вибрану локацію
@@ -301,7 +301,7 @@ def get_infoweather_file():
     '''функція що повертає шлях для зберігання файлу про стан погоди. По замовчуванню це диреторія користувача
        a function that returns the way to save the file about the weather. By default, this is the user's directory
     '''
-    return Path.cwd() / INFOWEATHER_FILE
+    return Path.home() / INFOWEATHER_FILE
 
 def save_infoweather_to_file(city_name, info):
     """
