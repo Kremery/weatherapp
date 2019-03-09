@@ -4,6 +4,7 @@ Simple script for weather sites scrapping
 """
 import sys
 import html
+import time
 import hashlib
 import argparse
 import configparser
@@ -14,6 +15,7 @@ from bs4 import BeautifulSoup
 
 FAKE_MOZILLA_AGENT = 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'
 CACHE_DIR = '.wappcache'
+CACHE_TIME = 600
 
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
@@ -77,6 +79,15 @@ def save_cache(url, page_sourse):
         cache_file.write(page_sourse)
 
 
+def is_valid(path):
+    """Check if current cache file is valid.
+    """
+
+    tttime = time.time() - path.stat().st_mtime
+
+    return tttime < CACHE_TIME 
+
+
 def get_cache(url):
     """Повертає дані кешу, якщо такі існюють.
        Return cache data if any.
@@ -87,7 +98,7 @@ def get_cache(url):
     cache_dir = get_cache_directory()
     if cache_dir.exists():
         cache_path = cache_dir / url_hash
-        if cache_path.exists():
+        if cache_path.exists() and is_valid(cache_path):
             with cache_path.open('rb') as cache_file:
                 cache = cache_file.read()
 
