@@ -105,13 +105,13 @@ def get_cache(url):
     return cache
 
 
-def get_page_source(url):
+def get_page_source(url, refresh=False):
     """функція, де ми отримуємо url і повертаємо html-код із сторінки або з файлової системи (кешу),
        a function where we get a url and return html-code from the page or from a file system
     """
 
     cache = get_cache(url)
-    if cache:
+    if cache and not refresh:
         page_sourse = cache
         print(f"Cache for {url}")
     else:
@@ -122,11 +122,11 @@ def get_page_source(url):
     return page_sourse.decode('utf-8')
 	
 
-def get_locations_accu(locations_url):
+def get_locations_accu(locations_url, refresh=False):
     """Вибір локацій для Accuweather
        location selection from Accuweather
     """
-    locations_page = get_page_source(locations_url)
+    locations_page = get_page_source(locations_url, refresh=refresh)
     soup = BeautifulSoup(locations_page, 'html.parser')
     
     locations = []
@@ -137,11 +137,11 @@ def get_locations_accu(locations_url):
     return locations
 
 
-def get_locations_rp5(locations_url):
+def get_locations_rp5(locations_url, refresh=False):
     """Вибір локацій для RP5
        location selection from RP5
     """
-    locations_page = get_page_source(locations_url)
+    locations_page = get_page_source(locations_url, refresh=refresh)
     soup = BeautifulSoup(locations_page, 'html.parser')
     
     locations = []
@@ -230,37 +230,37 @@ def get_configuration_rp5():
     return name, url
 
 
-def configurate_accu():
+def configurate_accu(refresh=False):
     """виводить список локацій
        displays a list of locations for site AccuWeather
     """
-    locations = get_locations_accu(ACCU_BROWSE_LOCATIONS)
+    locations = get_locations_accu(ACCU_BROWSE_LOCATIONS, refresh=refresh)
     while locations:
         for index, location in enumerate(locations):
             print(f'{index + 1}. {location[0]}')
         selected_index = int(input('Please select location: '))
         location = locations[selected_index - 1]
-        locations = get_locations_accu(location[1])
+        locations = get_locations_accu(location[1], refresh=refresh)
     
     save_configuration_accu(*location) # save the selected location
 
 
-def configurate_rp5():
+def configurate_rp5(refresh=False):
     """виводить список локацій
        displays a list of locations
     """
-    locations = get_locations_rp5(RP5_BROWSE_LOCATIONS)
+    locations = get_locations_rp5(RP5_BROWSE_LOCATIONS, refresh=refresh)
     while locations:
         for index, location in enumerate(locations):
             print(f'{index + 1}. {location[0]}')
         selected_index = int(input('Please select location: '))
         location = locations[selected_index - 1]
-        locations = get_locations_rp5(location[1])
+        locations = get_locations_rp5(location[1],refresh=refresh)
     
     save_configuration_rp5(*location) # save the selected location for rp5
 
 
-def get_weather_info_accu(page_content):
+def get_weather_info_accu(page_content, refresh=False):
     """get information about the weather conditions from the site
        функція повертає інформацію про стан погоди 
     """
@@ -278,7 +278,7 @@ def get_weather_info_accu(page_content):
 
     current_day_url = current_day_section.find('a').attrs['href']
     if current_day_url:
-        current_day_page = get_page_source(current_day_url)
+        current_day_page = get_page_source(current_day_url, refresh=refresh)
         if current_day_page:
             current_day = \
                 BeautifulSoup(current_day_page, 'html.parser')
@@ -305,7 +305,7 @@ def get_weather_info_accu(page_content):
     return weather_info
 
 
-def get_weather_info_rp5(page_content):
+def get_weather_info_rp5(page_content, refresh=False):
     """get information about the weather conditions from the site RP5
        функція повертає інформацію про стан погоди з сайту RP5
     """
@@ -347,24 +347,24 @@ def produce_output_rp5(city_name, info):
         print(f'{key}: {html.unescape(value)}')
 
 
-def get_accu_weather_info():
+def get_accu_weather_info(refresh=False):
     """функція, яка поверне інформацію про стан погоди для сайту Accuweather за url-адресою, яку збережено у файлі концігурації
        a function that returns the weather state information for site AccuWeather at the url-address stored in the concatenation file
     """
 
     city_name, city_url = get_configuration_accu()
-    content = get_page_source(city_url)
-    produce_output_accu(city_name, get_weather_info_accu(content))
+    content = get_page_source(city_url, refresh=refresh)
+    produce_output_accu(city_name, get_weather_info_accu(content, refresh=refresh))
     
 
-def get_rp5_weather_info():
+def get_rp5_weather_info(refresh=False):
     """функція, яка поверне інформацію про стан погоди для сайту RP5 за url-адресою, яку збережено у файлі концігурації
        a function that returns the weather state information for site RP5 at the url-address stored in the concatenation file
     """
     
     city_name, city_url = get_configuration_rp5()
-    content = get_page_source(city_url)
-    produce_output_rp5(city_name, get_weather_info_rp5(content))
+    content = get_page_source(city_url, refresh=refresh)
+    produce_output_rp5(city_name, get_weather_info_rp5(content, refresh=refresh))
 
 
 def get_infoweather_file():
@@ -411,12 +411,13 @@ def main(argv):
 
     parser = argparse.ArgumentParser()
     parser.add_argument('command', help='Service name', nargs=1)
+    parser.add_argument('--refresh', help='Update caches', action='store_true')
     params = parser.parse_args(argv)
 
     if params.command:
         command = params.command[0]
         if command in KNOWN_COMMANDS:
-            KNOWN_COMMANDS[command]()
+            KNOWN_COMMANDS[command](refresh=params.refresh)
         else:
             print("Unknown command provided!")
             sys.exit(1)
