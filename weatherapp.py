@@ -13,7 +13,7 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 FAKE_MOZILLA_AGENT = 'Mozilla/5.0 (X11; Fedora; Linux x86_64;)'
-CACHE_DIR = 'wappcache'
+CACHE_DIR = '.wappcache'
 
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/kaniv/321864/weather-forecast/321864"
@@ -43,8 +43,8 @@ SINOPTIK_TAGS = ('<p class="today-temp">','<div class="description"> <!--noindex
 
 
 def get_request_headers():
-"""Returns custom headers for url requests.
-"""
+    """Returns custom headers for url requests.
+    """
 
     return {'User-Agent': FAKE_MOZILLA_AGENT}
 
@@ -71,14 +71,14 @@ def save_cache(url, page_sourse):
     url_hash = get_url_hash(url)
     cache_dir = get_cache_directory()
     if not cache_dir.exists():
-        cache_dir.mkdir(paraments=True)
+        cache_dir.mkdir(parents=True)
     
     with (cache_dir / url_hash).open('wb') as cache_file:
         cache_file.write(page_sourse)
 
 
 def get_cache(url):
-    """Повертає дані кешу, якщо такі є.
+    """Повертає дані кешу, якщо такі існюють.
        Return cache data if any.
     """
     
@@ -102,6 +102,7 @@ def get_page_source(url):
     cache = get_cache(url)
     if cache:
         page_sourse = cache
+        print(f"Cache for {url}")
     else:
         request = Request(url, headers=get_request_headers())
         page_sourse = urlopen(request).read()
@@ -222,13 +223,13 @@ def configurate_accu():
     """виводить список локацій
        displays a list of locations for site AccuWeather
     """
-    locations = get_locations(ACCU_BROWSE_LOCATIONS)
+    locations = get_locations_accu(ACCU_BROWSE_LOCATIONS)
     while locations:
         for index, location in enumerate(locations):
             print(f'{index + 1}. {location[0]}')
         selected_index = int(input('Please select location: '))
         location = locations[selected_index - 1]
-        locations = get_locations(location[1])
+        locations = get_locations_accu(location[1])
     
     save_configuration_accu(*location) # save the selected location
 
